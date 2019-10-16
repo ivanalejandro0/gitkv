@@ -40,14 +40,10 @@ fn main() {
         )
         .get_matches();
 
-
-    let store_path = match env::var("STORE") {
-        Ok(value) => value,
-        Err(e) => {
-            eprintln!("You must define a STORE variable with the path to a repo. Error: {}", e);
-            process::exit(1);
-        }
-    };
+    let store_path = env::var("STORE").unwrap_or_else(|e| {
+        eprintln!("You must define a STORE variable with the path to a repo. Error: {}", e);
+        process::exit(1);
+    });
 
     let store = gitkv::Store::new(&store_path).unwrap();
 
