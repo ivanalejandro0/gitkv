@@ -5,6 +5,8 @@ use std::io::BufReader;
 use std::path::Path;
 use walkdir::{DirEntry, WalkDir};
 
+mod git;
+
 pub struct Store {
     pub base_path: String,
 }
@@ -15,6 +17,11 @@ impl Store {
             base_path: String::from(base_path),
         };
         Ok(store)
+    }
+
+    pub fn git(&self) {
+        let repo = git::Repo::new(Path::new(&self.base_path));
+        repo.fetch_origin_master().unwrap();
     }
 
     pub fn get(&self, key: &str) -> std::io::Result<String> {

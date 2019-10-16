@@ -1,3 +1,4 @@
+use std::env;
 use std::process;
 use clap::{App, Arg, SubCommand};
 
@@ -33,14 +34,26 @@ fn main() {
             SubCommand::with_name("list")
                 .about("list all the existing keys")
         )
+        .subcommand(
+            SubCommand::with_name("git")
+                .about("work in progress: do stuff with git")
+        )
         .get_matches();
+
+
+    let store_path = match env::var("STORE") {
+        Ok(value) => value,
+        Err(e) => {
+            eprintln!("You must define a STORE variable with the path to a repo. Error: {}", e);
+            process::exit(1);
+        }
+    };
+
+    let store = gitkv::Store::new(&store_path).unwrap();
 
     // Calling .unwrap() is safe for getting the values of key/value arguments since they are
     // required.
     // If they weren't required we could have used an 'if let' to conditionally get the values.
-
-    let store = gitkv::Store::new("./test-store").unwrap();
-
     if let Some(matches) = matches.subcommand_matches("set") {
         let key = matches.value_of("key").unwrap();
         let value = matches.value_of("value").unwrap();
@@ -67,6 +80,10 @@ fn main() {
     if matches.is_present("list") {
         let entries = store.list();
         println!("Entries: {:?}", entries);
+    }
+
+    if matches.is_present("git") {
+        store.git();
     }
 
 }
