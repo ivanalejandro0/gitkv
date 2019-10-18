@@ -3,7 +3,6 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
 use std::path::Path;
-use std::process;
 
 use walkdir::{DirEntry, WalkDir};
 
@@ -21,15 +20,17 @@ impl Store {
         Ok(store)
     }
 
-    pub fn git(&self) {
+    pub fn git_update(&self) -> Result<(), git2::Error> {
         let repo = git::Repo::new(Path::new(&self.base_path));
-        // repo.fetch_origin_master().unwrap();
-        let file = Path::new("z");
+        repo.fetch_origin_master()
+    }
 
-        if let Err(e) = repo.add_and_commit(&file) {
-            eprintln!("Error adding/committing file: {}", e);
-            process::exit(1);
-        };
+    pub fn git_add(&self, key: &str) -> Result<(), git2::Error> {
+        let repo = git::Repo::new(Path::new(&self.base_path));
+        let file = Path::new(key);
+        let message = String::from(format!("Set: {}", key));
+
+        repo.add_and_commit(&file, &message)
     }
 
     pub fn get(&self, key: &str) -> std::io::Result<String> {

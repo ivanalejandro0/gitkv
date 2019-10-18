@@ -1,4 +1,4 @@
-use git2::{Commit, Repository, Oid};
+use git2::{Commit, Repository};
 use std::path::Path;
 
 pub struct Repo {
@@ -65,7 +65,7 @@ impl Repo {
 
     // inspired on:
     // http://siciarz.net/24-days-rust-git2/
-    pub fn add_and_commit(&self, path: &Path) -> Result<(), git2::Error> {
+    pub fn add_and_commit(&self, path: &Path, message: &str) -> Result<(), git2::Error> {
         let mut index = self.r.index()?;
         index.add_path(path)?;
         let oid = index.write_tree()?;
@@ -75,7 +75,6 @@ impl Repo {
         let parent_commit = self.find_last_commit()?;
 
         let tree = self.r.find_tree(oid)?;
-        let message = "test commit";
 
         let oid = self.r.commit(Some("HEAD"), //  point HEAD to our new commit
                     &signature, // author

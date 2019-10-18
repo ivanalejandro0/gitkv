@@ -35,8 +35,17 @@ fn main() {
                 .about("list all the existing keys")
         )
         .subcommand(
-            SubCommand::with_name("git")
-                .about("work in progress: do stuff with git")
+            SubCommand::with_name("git-add")
+                .about("work in progress: add and commit a file")
+                .arg(
+                    Arg::with_name("key") // And their own arguments
+                        .help("the key to add/commit")
+                        .required(true),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("git-update")
+                .about("work in progress: fetch and update the repo")
         )
         .get_matches();
 
@@ -78,8 +87,20 @@ fn main() {
         println!("Entries: {:?}", entries);
     }
 
-    if matches.is_present("git") {
-        store.git();
+    if matches.is_present("git-update") {
+        if let Err(e) = store.git_update() {
+            eprintln!("Error adding/committing file: {}", e);
+            process::exit(1);
+        };
+    }
+
+    if let Some(matches) = matches.subcommand_matches("git-add") {
+        let key = matches.value_of("key").unwrap();
+
+        if let Err(e) = store.git_add(key) {
+            eprintln!("Error adding/committing file: {}", e);
+            process::exit(1);
+        };
     }
 
 }
