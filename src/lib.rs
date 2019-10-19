@@ -28,7 +28,7 @@ impl Store {
     pub fn git_add(&self, key: &str) -> Result<(), git2::Error> {
         let repo = git::Repo::new(Path::new(&self.base_path));
         let file = Path::new(key);
-        let message = String::from(format!("Set: {}", key));
+        let message = format!("Set: {}", key);
 
         repo.add_and_commit(&file, &message)
     }
@@ -60,7 +60,7 @@ impl Store {
             entry
                 .file_name()
                 .to_str()
-                .map(|s| s.starts_with("."))
+                .map(|s| s.starts_with('.'))
                 .unwrap_or(false)
         }
 
@@ -76,6 +76,6 @@ impl Store {
             })
             .collect();
 
-        return entries;
+        entries
     }
 }
